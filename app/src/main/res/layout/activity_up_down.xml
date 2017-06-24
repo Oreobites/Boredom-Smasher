@@ -30,7 +30,8 @@
             android:text="50"
             android:textSize="80dp"
             android:gravity="center"
-            android:id="@+id/UpDown_input"/>
+            android:id="@+id/UpDown_input"
+            android:inputType="numberDecimal"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,11 +45,12 @@
             android:paddingBottom="4dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:id="@+id/please"
+            android:id="@+id/guessMe"
             android:onClick="guess"
             />
     </LinearLayout>
     <TextView
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=" "
@@ -56,6 +58,7 @@
         android:textSize="70dp"
         android:textColor="#00cc00"
         android:id="@+id/UpDown_print"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

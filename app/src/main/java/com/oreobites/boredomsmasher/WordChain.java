@@ -1,6 +1,7 @@
 package com.oreobites.boredomsmasher;
 
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,14 @@ public class WordChain extends AppCompatActivity {
     ArrayList<String> wordList = new ArrayList<>();
     ArrayList<String> usedWordList = new ArrayList<>();
     String pcWord, usrWord;
+    boolean isRunning = true;
+    MediaPlayer correctPlayer, wrongPlayer;
+
+    @Override
+    protected void onDestroy() {
+        isRunning = false;
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +53,7 @@ public class WordChain extends AppCompatActivity {
             public void run() {
                 progressBar.setMax(40);
                 progressBar.setProgress(40);
-                while (true) {
+                while (isRunning) {
                     try {
                         int currentProgress = progressBar.getProgress();
                         if (currentProgress <= 1) {
@@ -131,17 +140,23 @@ public class WordChain extends AppCompatActivity {
     }
 
     public void sendWord(View v) {
-        if (input.getText().toString().equals("")) {
+        usrWord = input.getText().toString();
+        usrWord = usrWord.trim();
+
+        if (usrWord.equals("")) {
+            MySound.playSound(MySound.soundID_wrong_ogg);
             Toast.makeText(this, "You didn't write anything :(", Toast.LENGTH_SHORT).show();
             return;
         }
-        usrWord = input.getText().toString();
+
         input.setText("");
         if (!(usedWordList.contains(usrWord)) && (Character.toLowerCase(usrWord.charAt(0)) == Character.toLowerCase(pcWord.charAt(pcWord.length()-1))) && wordList.contains(usrWord) && (usrWord.length()>=4)) {
+            MySound.playSound(MySound.soundID_correct_ogg);
             usedWordList.add(usrWord);
             okPrintThread.start();
             getNextWord(usrWord.charAt(usrWord.length()-1));
         } else {
+            MySound.playSound(MySound.soundID_wrong_ogg);
             Toast.makeText(this, "No, you can't do that :D", Toast.LENGTH_SHORT).show();
         }
     }

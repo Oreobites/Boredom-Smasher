@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,8 +15,16 @@ public class UpDown extends AppCompatActivity {
 
     private TextView title, lifeText, life, print;
     private EditText input;
+    private Button guess;
     private int answer, score, lifeNum = 120;
     private Thread lifeThread;
+    boolean isRunning = true;
+
+    @Override
+    protected void onDestroy() {
+        isRunning = false;
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +36,7 @@ public class UpDown extends AppCompatActivity {
         lifeThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                while (isRunning) {
                     try {
                         lifeNum = Integer.parseInt(life.getText().toString());
                         lifeNum--;
@@ -66,6 +75,7 @@ public class UpDown extends AppCompatActivity {
         lifeText = (TextView) findViewById(R.id.UpDown_lifeText);
         life = (TextView) findViewById(R.id.UpDown_life);
         print = (TextView) findViewById(R.id.UpDown_print);
+        guess = (Button) findViewById(R.id.guessMe);
 
         input.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -89,27 +99,31 @@ public class UpDown extends AppCompatActivity {
         lifeText.setTypeface(font_JosefinSlab);
         life.setTypeface(font_JosefinSlab);
         print.setTypeface(font_JosefinSlab);
+        guess.setTypeface(font_JosefinSlab);
     }
 
     public void guess(View v) {
         try {
-            int usr = Integer.parseInt(input.getText().toString());
+            String usrNum = input.getText().toString().trim();
+            int usr = Integer.parseInt(usrNum);
             if (usr < 1 || usr > 100) {
                 Toast.makeText(this, "Enter Number Between 1 ~ 100!!", Toast.LENGTH_SHORT).show();
             } else {
                 if (usr==answer) {
                     lifeThread.interrupt();
+                    MySound.playSound(MySound.soundID_correct_ogg);
                     Toast.makeText(this, "~~~ Wow!! The Answer was " + answer + "!! ~~~", Toast.LENGTH_SHORT).show();
                     score = 100 * lifeNum;
                     finishGame();
-
                 } else if (usr < answer) {
                     //print UP
+                    MySound.playSound(MySound.soundID_wrong_ogg);
                     print.setText("UP!");
                     lifeNum -= 10;
                     life.setText(String.valueOf(lifeNum));
                 } else {
                     //print DOWN
+                    MySound.playSound(MySound.soundID_wrong_ogg);
                     print.setText("DOWN!");
                     lifeNum -= 10;
                     life.setText(String.valueOf(lifeNum));

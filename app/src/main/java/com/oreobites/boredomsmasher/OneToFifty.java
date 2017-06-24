@@ -12,6 +12,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.oreobites.boredomsmasher.MySound.initSoundPool;
+import static com.oreobites.boredomsmasher.MySound.playSound;
+import static com.oreobites.boredomsmasher.MySound.soundID_correct_ogg;
+import static com.oreobites.boredomsmasher.MySound.soundID_wrong_ogg;
+
 public class OneToFifty extends AppCompatActivity {
 
     private TextView title;
@@ -20,10 +25,18 @@ public class OneToFifty extends AppCompatActivity {
     ArrayList<Integer> numbers = new ArrayList<>();
     private Thread timeThread;
 
+    boolean isRunning = true;
+    int nextNumber = 1;
+
     int randomRange(int Min, int Max) {
         return Min + (int)(Math.random() * ((Max - Min) + 1));
     }
-    int nextNumber = 1;
+
+    @Override
+    protected void onDestroy() {
+        isRunning = false;
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +48,13 @@ public class OneToFifty extends AppCompatActivity {
         setViewStyle();
         initNumbers();
         setNumbers();
-
+        initSoundPool();
         timeThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 progressBar.setMax(120);
                 progressBar.setProgress(120);
-                while (true) {
+                while (isRunning) {
                     try {
                         int currentProgress = progressBar.getProgress();
                         if (currentProgress <= 1) {
@@ -91,18 +104,18 @@ public class OneToFifty extends AppCompatActivity {
         Button button = buttons.get(index);
         MyInfo myInfo = (MyInfo)button.getTag();
 
-        if (myInfo.getMyNumber() == 50) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(OneToFifty.this, "~~~ Congratulations ~~~", Toast.LENGTH_SHORT).show();
-                }
-            });
-            finishGame();
-            return;
-        }
-
         if (myInfo.getMyNumber() == nextNumber) {
+            playSound(soundID_correct_ogg);
+            if (myInfo.getMyNumber() == 50) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(OneToFifty.this, "~~~ Congratulations ~~~", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                finishGame();
+                return;
+            }
             final String tmp = title.getText().toString();
             title.setText("GREAT!");
             if (nextNumber % 2 == 0) title.setTextColor(Color.parseColor("#00cc00"));
@@ -110,12 +123,14 @@ public class OneToFifty extends AppCompatActivity {
             changeNumber(v.getId());
             nextNumber++;
         } else if ((!button.getText().toString().equals(""))) {
+            playSound(soundID_wrong_ogg);
             final String tmp = title.getText().toString();
             title.setText("WRONG!");
             progressBar.setProgress(progressBar.getProgress()-10);
             if (nextNumber % 2 == 0) title.setTextColor(Color.parseColor("#ff0000"));
             else title.setTextColor(Color.parseColor("#cccc00"));
         } else {
+            playSound(soundID_wrong_ogg);
             title.setText("EMPTY!");
             title.setTextColor(Color.rgb(0,0,0));
         }

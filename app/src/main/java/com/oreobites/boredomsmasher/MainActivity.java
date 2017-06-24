@@ -2,6 +2,8 @@ package com.oreobites.boredomsmasher;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -12,10 +14,16 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.oreobites.boredomsmasher.MySound.initSoundPool;
+import static com.oreobites.boredomsmasher.MySound.playSound;
+import static com.oreobites.boredomsmasher.MySound.setContext;
+import static com.oreobites.boredomsmasher.MySound.soundID_correct_ogg;
+
 public class MainActivity extends AppCompatActivity {
 
     TextView title1, title2, title3;
     Button please;
+    MediaPlayer bgmPlayer = null;
 
     int score = 0;
     ArrayList<Integer> gameIDs = new ArrayList<>();
@@ -27,6 +35,22 @@ public class MainActivity extends AppCompatActivity {
         initView();
         setViewStyle();
         resetGameIDs();
+        initBGM();
+        setContext(this);
+        initSoundPool();
+    }
+
+    private void initBGM() {
+        if (bgmPlayer != null) return;
+        bgmPlayer = MediaPlayer.create(MainActivity.this, R.raw.energetic);
+        bgmPlayer.setLooping(true);
+
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        float volume = (actualVolume / maxVolume) ;
+        bgmPlayer.setVolume(volume, volume);
+        bgmPlayer.start();
     }
 
     private void resetGameIDs() {
@@ -57,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchGame(View v) {
         //버튼 onClick 메소드
+        playSound(soundID_correct_ogg);
 
         if (gameIDs.size() == 0) resetGameIDs();
         final int index = randomRange(0, gameIDs.size()-1);
